@@ -42,20 +42,16 @@ export class FormsService {
     return createdForm.save();
   }
 
-  async getFormById(id: string): Promise<Form> {
-    const form = await this.formModel
-      .findOne({ _id: new Types.ObjectId(id) })
-      .exec();
+  async getFormById(id: Types.ObjectId): Promise<Form> {
+    const form = await this.formModel.findOne({ _id: id }).exec();
     if (!form) {
       throw new NotFoundException('Formulário não localizado.');
     }
     return form;
   }
 
-  async deleteForm(id: string): Promise<any> {
-    const response = await this.formModel
-      .deleteOne({ _id: new Types.ObjectId(id) })
-      .exec();
+  async deleteForm(id: Types.ObjectId): Promise<any> {
+    const response = await this.formModel.deleteOne({ _id: id }).exec();
     if (response.deletedCount > 0) {
       return 'Formulário excluído com sucesso';
     } else {
@@ -63,17 +59,21 @@ export class FormsService {
     }
   }
 
-  async updateForm(id: string, updateForm: UpdateFormDto) {
-    const form = await this.formModel
-      .findOneAndUpdate({ _id: new Types.ObjectId(id) }, { $set: updateForm })
+  async updateForm(
+    id: Types.ObjectId,
+    updateForm: UpdateFormDto,
+  ): Promise<Form> {
+    return this.formModel
+      .findOneAndUpdate(
+        { _id: id },
+        { $set: updateForm },
+        { returnOriginal: false },
+      )
       .exec();
-    return form.save();
   }
 
-  async updateFormStatus(id: string, status: FormStatus) {
-    const form = await this.formModel
-      .findOne({ _id: new Types.ObjectId(id) })
-      .exec();
+  async updateFormStatus(id: Types.ObjectId, status: FormStatus) {
+    const form = await this.formModel.findOne({ _id: id }).exec();
     form.status = FormStatus[status];
     return form.save();
   }

@@ -9,12 +9,14 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { Types } from 'mongoose';
 import { CreateFormDto } from './dto/create-form.dto';
 import { GetFormFIlterDto } from './dto/get-forms-filter.dto';
 import { UpdateFormStatusDto } from './dto/update-form-status.dto';
 import { UpdateFormDto } from './dto/update-form.dto';
 import { Form } from './form.model';
 import { FormsService } from './forms.service';
+import { FormValidationParameter } from './pipes/form-validation-parameter.pipe';
 
 @Controller('/api/v1/forms')
 export class FormsController {
@@ -28,7 +30,7 @@ export class FormsController {
   }
 
   @Get('/:id')
-  getFormById(@Param('id') id: string): any {
+  getFormById(@Param('id', FormValidationParameter) id: Types.ObjectId): any {
     return this.formsService.getFormById(id);
   }
 
@@ -39,7 +41,7 @@ export class FormsController {
 
   @Patch('/:id/status')
   updateFormStatus(
-    @Param('id') id: string,
+    @Param('id', FormValidationParameter) id: Types.ObjectId,
     @Body() updateFormStatusDto: UpdateFormStatusDto,
   ): Promise<Form> {
     const { status } = updateFormStatusDto;
@@ -48,14 +50,16 @@ export class FormsController {
 
   @Put('/:id')
   updateForm(
-    @Param('id') id: string,
+    @Param('id', FormValidationParameter) id: Types.ObjectId,
     @Body() updateFormDto: UpdateFormDto,
   ): Promise<Form> {
     return this.formsService.updateForm(id, updateFormDto);
   }
 
   @Delete('/:id')
-  deleteForm(@Param('id') id: string): Promise<any> {
+  deleteForm(
+    @Param('id', FormValidationParameter) id: Types.ObjectId,
+  ): Promise<any> {
     return this.formsService.deleteForm(id);
   }
 }
