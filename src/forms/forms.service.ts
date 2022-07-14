@@ -5,44 +5,68 @@ import { GetFormFIlterDto } from './dto/get-forms-filter.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { UpdateFormDto } from './dto/update-form.dto';
+import { UsersService } from 'src/users/users.service';
+import { UserDto } from 'src/users/dto/user.dto';
+import { Profile } from 'src/users/user.model';
 
 @Injectable()
 export class FormsService {
-  constructor(@InjectModel('Form') private formModel: Model<Form>) {}
+  constructor(
+    @InjectModel('Form') private formModel: Model<Form>,
+    private userService: UsersService,
+  ) {}
 
-  getAllForms(): Promise<Form[]> {
-    return this.formModel.find({}).exec();
-  }
-
-  async getFormsByFilters(filterDto: GetFormFIlterDto): Promise<Form[]> {
+  async getFormsByFilters(
+    filterDto: GetFormFIlterDto,
+    user: UserDto,
+  ): Promise<Form[]> {
     const { status, search } = filterDto;
     let formsResult: Form[] = [];
-    if (status) {
-      formsResult = await this.formModel
-        .find({ status: FormStatus[status] })
-        .exec();
+    if (user.profile === Profile.ADMIN) {
+      if (status) {
+        formsResult = await this.formModel
+          .find({ status: FormStatus[status] })
+          .exec();
+      } else {
+        formsResult = await this.formModel.find({}).exec();
+      }
     } else {
-      formsResult = await this.getAllForms();
+      if (status) {
+        formsResult = await this.formModel
+          .find({ email: user.email, status: FormStatus[status] })
+          .exec();
+      } else {
+        formsResult = await this.formModel.find({ email: user.email }).exec();
+      }
     }
     if (search) {
-      formsResult = formsResult.filter((form) => {
-        form.event.includes(search) ||
-        form.date.includes(search) ||
-        form.themeStyle.includes(search)
-          ? true
-          : false;
+      return await formsResult.filter((form) => {
+        return (
+          form.event === search ||
+          form.date === search ||
+          form.themeStyle === search
+        );
       });
     }
     return formsResult;
   }
 
-  createForm(createFormDto: CreateFormDto): Promise<Form> {
+  async createForm(createFormDto: CreateFormDto): Promise<Form> {
     createFormDto.status = FormStatus.OPEN;
     const createdForm = new this.formModel(createFormDto);
+    const userDto: UserDto = {
+      email: createFormDto.email,
+      password: createFormDto.cpf,
+      profile: Profile.USER,
+    };
+    const user = await this.userService.getUserByEmail(userDto.email);
+    if (!user) {
+      await this.userService.signUp(userDto);
+    }
     return createdForm.save();
   }
 
-  async getFormById(id: Types.ObjectId): Promise<Form> {
+  async getFormById(id: Types.ObjectId, user: UserDto): Promise<Form> {
     const form = await this.formModel.findOne({ _id: id }).exec();
     if (!form) {
       throw new NotFoundException('Formulário não localizado.');
@@ -50,7 +74,7 @@ export class FormsService {
     return form;
   }
 
-  async deleteForm(id: Types.ObjectId): Promise<any> {
+  async deleteForm(id: Types.ObjectId, user: UserDto): Promise<any> {
     const response = await this.formModel.deleteOne({ _id: id }).exec();
     if (response.deletedCount > 0) {
       return 'Formulário excluído com sucesso';
@@ -62,6 +86,7 @@ export class FormsService {
   async updateForm(
     id: Types.ObjectId,
     updateForm: UpdateFormDto,
+    user: UserDto,
   ): Promise<Form> {
     return this.formModel
       .findOneAndUpdate(
@@ -72,7 +97,11 @@ export class FormsService {
       .exec();
   }
 
-  async updateFormStatus(id: Types.ObjectId, status: FormStatus) {
+  async updateFormStatus(
+    id: Types.ObjectId,
+    status: FormStatus,
+    user: UserDto,
+  ) {
     const form = await this.formModel.findOne({ _id: id }).exec();
     form.status = FormStatus[status];
     return form.save();

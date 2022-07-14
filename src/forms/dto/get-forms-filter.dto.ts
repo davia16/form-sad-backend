@@ -1,4 +1,4 @@
-import { IsEnum, IsString, IsOptional } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { FormStatus } from '../form.model';
 
 export class GetFormFIlterDto {

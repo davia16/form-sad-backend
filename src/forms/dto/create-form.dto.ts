@@ -1,7 +1,8 @@
 import { IsEmail, IsNotEmpty } from 'class-validator';
+import { FormStatus } from '../form.model';
 
 export class CreateFormDto {
-  status: string;
+  status: FormStatus;
   @IsNotEmpty()
   name: string;
   @IsNotEmpty()

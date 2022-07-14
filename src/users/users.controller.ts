@@ -7,39 +7,45 @@ import {
   Put,
   Param,
   Delete,
-  Bind,
+  UseGuards,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { Types } from 'mongoose';
+import { UserDto } from './dto/user.dto';
+import { UserValidationParameter } from './pipes/user-validation-parameter.pipe';
+import { User } from './user.model';
+import { UsersService } from './users.service';
 
 @Controller('api/v1/users')
 export class UsersController {
+  constructor(private usersService: UsersService) {}
+
   @Post()
-  createUser(@Body() createUserDto: CreateUserDto) {
-    return createUserDto;
+  @UseGuards(AuthGuard())
+  createUser(@Body() userDto: UserDto): Promise<UserDto> {
+    return this.usersService.signUp(userDto);
   }
 
-  @Get()
-  @Bind(Query())
-  findAllUsers(query) {
-    console.log(query);
-    return `This action returns all cats (limit: ${query.limit} items)`;
+  @Get('/:id')
+  @UseGuards(AuthGuard())
+  getUserById(@Param('id', UserValidationParameter) id: Types.ObjectId): any {
+    return this.usersService.getUserById(id);
   }
 
-  @Get(':id')
-  @Bind(Param('id'))
-  findOneUser(id) {
-    return `This action returns a #${id} cat`;
+  @Put('/:id')
+  @UseGuards(AuthGuard())
+  updateUser(
+    @Param('id', UserValidationParameter) id: Types.ObjectId,
+    @Body() userDto: UserDto,
+  ): Promise<User> {
+    return this.usersService.updateUser(id, userDto);
   }
 
-  @Put(':id')
-  @Bind(Param('id'), Body())
-  updateUser(id, updateUserDto) {
-    return `This action updates a #${id} cat`;
-  }
-
-  @Delete(':id')
-  @Bind(Param('id'))
-  removeUser(id) {
-    return `This action removes a #${id} cat`;
+  @Delete('/:id')
+  @UseGuards(AuthGuard())
+  deleteUser(
+    @Param('id', UserValidationParameter) id: Types.ObjectId,
+  ): Promise<any> {
+    return this.usersService.deleteUser(id);
   }
 }
