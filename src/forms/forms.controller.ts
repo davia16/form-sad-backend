@@ -21,9 +21,11 @@ import { UpdateFormDto } from './dto/update-form.dto';
 import { Form } from './form.model';
 import { FormsService } from './forms.service';
 import { FormValidationParameter } from './pipes/form-validation-parameter.pipe';
+import { Logger } from '@nestjs/common';
 
 @Controller('/api/v1/forms')
 export class FormsController {
+  private logger = new Logger('FormsController');
   constructor(private formsService: FormsService) {}
 
   @Get()
@@ -46,6 +48,8 @@ export class FormsController {
 
   @Post()
   createForm(@Body() createFormDto: CreateFormDto): Promise<Form> {
+    console.log(createFormDto);
+    this.logger.verbose('Creating form for user ' + createFormDto.email);
     return this.formsService.createForm(createFormDto);
   }
 
