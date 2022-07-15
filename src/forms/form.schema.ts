@@ -29,7 +29,7 @@ export const FormSchema = new mongoose.Schema(
     howDidYouFindUs: String,
     cantMissDecorations: String,
     othersInformations: String,
-    inspirations: [{ path: String }],
+    inspirations: [String],
     budget: String,
     contract: String,
   },

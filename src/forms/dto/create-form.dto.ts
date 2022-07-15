@@ -1,5 +1,7 @@
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 import { FormStatus } from '../form.model';
+import { Express } from 'express';
+import { UploadedFiles } from '@nestjs/common';
 
 export class CreateFormDto {
   status: FormStatus;
@@ -52,7 +54,7 @@ export class CreateFormDto {
   @IsNotEmpty()
   cantMissDecorations: string;
   othersInformations: string;
-  inspirations: [{ path: string }];
+  inspirations: string[];
   budget: string;
   contract: string;
 }

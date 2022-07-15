@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Form, FormStatus } from './form.model';
 import { CreateFormDto } from './dto/create-form.dto';
 import { GetFormFIlterDto } from './dto/get-forms-filter.dto';
@@ -67,7 +71,14 @@ export class FormsService {
   }
 
   async getFormById(id: Types.ObjectId, user: UserDto): Promise<Form> {
-    const form = await this.formModel.findOne({ _id: id }).exec();
+    let form;
+    if (user.profile === Profile.ADMIN) {
+      form = await this.formModel.findOne({ _id: id }).exec();
+    } else {
+      form = await this.formModel
+        .findOne({ email: user.email, _id: id })
+        .exec();
+    }
     if (!form) {
       throw new NotFoundException('Formulário não localizado.');
     }
@@ -75,7 +86,15 @@ export class FormsService {
   }
 
   async deleteForm(id: Types.ObjectId, user: UserDto): Promise<any> {
-    const response = await this.formModel.deleteOne({ _id: id }).exec();
+    let response;
+    if (user.profile === Profile.ADMIN) {
+      response = await this.formModel.deleteOne({ _id: id }).exec();
+    } else {
+      response = await this.formModel
+        .deleteOne({ email: user.email, _id: id })
+        .exec();
+    }
+
     if (response.deletedCount > 0) {
       return 'Formulário excluído com sucesso';
     } else {
@@ -88,13 +107,23 @@ export class FormsService {
     updateForm: UpdateFormDto,
     user: UserDto,
   ): Promise<Form> {
-    return this.formModel
-      .findOneAndUpdate(
-        { _id: id },
-        { $set: updateForm },
-        { returnOriginal: false },
-      )
-      .exec();
+    if (user.profile === Profile.ADMIN) {
+      return this.formModel
+        .findOneAndUpdate(
+          { _id: id },
+          { $set: updateForm },
+          { returnOriginal: false },
+        )
+        .exec();
+    } else {
+      return this.formModel
+        .findOneAndUpdate(
+          { email: user.email, _id: id },
+          { $set: updateForm },
+          { returnOriginal: false },
+        )
+        .exec();
+    }
   }
 
   async updateFormStatus(
@@ -102,8 +131,14 @@ export class FormsService {
     status: FormStatus,
     user: UserDto,
   ) {
-    const form = await this.formModel.findOne({ _id: id }).exec();
-    form.status = FormStatus[status];
-    return form.save();
+    if (user.profile === Profile.ADMIN) {
+      const form = await this.formModel.findOne({ _id: id }).exec();
+      form.status = FormStatus[status];
+      return form.save();
+    } else {
+      throw new UnauthorizedException(
+        'Sem permissão para realizar esta operação.',
+      );
+    }
   }
 }

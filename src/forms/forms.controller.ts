@@ -8,7 +8,9 @@ import {
   Post,
   Put,
   Query,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Types } from 'mongoose';
@@ -22,7 +24,9 @@ import { Form } from './form.model';
 import { FormsService } from './forms.service';
 import { FormValidationParameter } from './pipes/form-validation-parameter.pipe';
 import { Logger } from '@nestjs/common';
-
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { editFileName, imageFileFilter } from 'src/utils/file-upload.utils';
+import { diskStorage } from 'multer';
 @Controller('/api/v1/forms')
 export class FormsController {
   private logger = new Logger('FormsController');
@@ -47,8 +51,23 @@ export class FormsController {
   }
 
   @Post()
-  createForm(@Body() createFormDto: CreateFormDto): Promise<Form> {
-    console.log(createFormDto);
+  @UseInterceptors(
+    FilesInterceptor('inspirations', 10, {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: editFileName,
+      }),
+      fileFilter: imageFileFilter,
+    }),
+  )
+  async createForm(
+    @Body() createFormDto: CreateFormDto,
+    @UploadedFiles() inspirations: Array<Express.Multer.File>,
+  ): Promise<Form> {
+    createFormDto.inspirations = new Array<string>();
+    inspirations.forEach((file) => {
+      createFormDto.inspirations.push(file.path);
+    });
     this.logger.verbose('Creating form for user ' + createFormDto.email);
     return this.formsService.createForm(createFormDto);
   }
@@ -66,11 +85,26 @@ export class FormsController {
 
   @Put('/:id')
   @UseGuards(AuthGuard())
+  @UseInterceptors(
+    FilesInterceptor('inspirations', 10, {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: editFileName,
+      }),
+      fileFilter: imageFileFilter,
+    }),
+  )
   updateForm(
     @Param('id', FormValidationParameter) id: Types.ObjectId,
     @Body() updateFormDto: UpdateFormDto,
     @GetUser() user: UserDto,
+    @UploadedFiles()
+    inspirations: Array<Express.Multer.File>,
   ): Promise<Form> {
+    updateFormDto.inspirations = new Array<string>();
+    inspirations.forEach((file) => {
+      updateFormDto.inspirations.push(file.path);
+    });
     return this.formsService.updateForm(id, updateFormDto, user);
   }
 
