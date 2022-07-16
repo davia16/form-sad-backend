@@ -55,6 +55,7 @@ export class CreateFormDto {
   cantMissDecorations: string;
   othersInformations: string;
   inspirations: string[];
+  inspirationsPath: string;
   budget: string;
   contract: string;
 }

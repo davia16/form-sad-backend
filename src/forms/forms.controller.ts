@@ -64,10 +64,11 @@ export class FormsController {
     @Body() createFormDto: CreateFormDto,
     @UploadedFiles() inspirations: Array<Express.Multer.File>,
   ): Promise<Form> {
-    createFormDto.inspirations = new Array<string>();
-    inspirations.forEach((file) => {
-      createFormDto.inspirations.push(file.path);
-    });
+    createFormDto.inspirationsPath = await this.formsService.uploadFiles(
+      inspirations,
+      createFormDto.email,
+      createFormDto.date,
+    );
     this.logger.verbose('Creating form for user ' + createFormDto.email);
     return this.formsService.createForm(createFormDto);
   }
@@ -94,17 +95,18 @@ export class FormsController {
       fileFilter: imageFileFilter,
     }),
   )
-  updateForm(
+  async updateForm(
     @Param('id', FormValidationParameter) id: Types.ObjectId,
     @Body() updateFormDto: UpdateFormDto,
     @GetUser() user: UserDto,
     @UploadedFiles()
     inspirations: Array<Express.Multer.File>,
   ): Promise<Form> {
-    updateFormDto.inspirations = new Array<string>();
-    inspirations.forEach((file) => {
-      updateFormDto.inspirations.push(file.path);
-    });
+    updateFormDto.inspirationsPath = await this.formsService.uploadFiles(
+      inspirations,
+      updateFormDto.email,
+      updateFormDto.date,
+    );
     return this.formsService.updateForm(id, updateFormDto, user);
   }
 

@@ -35,7 +35,7 @@ export interface Form extends Document {
   howDidYouFindUs: string;
   cantMissDecorations: string;
   othersInformations: string;
-  inspirations: string;
+  inspirationsPath: string;
   budget: string;
   contract: string;
 }
