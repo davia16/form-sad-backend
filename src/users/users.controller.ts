@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Query,
   Post,
   Body,
   Put,
@@ -28,7 +27,9 @@ export class UsersController {
 
   @Get('/:id')
   @UseGuards(AuthGuard())
-  getUserById(@Param('id', UserValidationParameter) id: Types.ObjectId): any {
+  getUserById(
+    @Param('id', UserValidationParameter) id: Types.ObjectId,
+  ): Promise<User> {
     return this.usersService.getUserById(id);
   }
 

@@ -7,7 +7,7 @@ import { User } from './user.model';
 import { UserDto } from './dto/user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { criptPassword } from 'src/utils/bcrypt.utils';
+import { criptPassword } from '../utils/bcrypt.utils';
 
 @Injectable()
 export class UsersService {
@@ -46,9 +46,7 @@ export class UsersService {
 
   async deleteUser(id: Types.ObjectId): Promise<any> {
     const response = await this.userModel.deleteOne({ _id: id }).exec();
-    if (response.deletedCount > 0) {
-      return 'Usuário excluído com sucesso';
-    } else {
+    if (response.deletedCount < 1) {
       throw new NotFoundException('Usuário não localizado.');
     }
   }

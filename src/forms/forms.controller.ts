@@ -14,8 +14,8 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Types } from 'mongoose';
-import { GetUser } from 'src/auth/get-user.decorator';
-import { UserDto } from 'src/users/dto/user.dto';
+import { GetUser } from '../auth/get-user.decorator';
+import { UserDto } from '../users/dto/user.dto';
 import { CreateFormDto } from './dto/create-form.dto';
 import { GetFormFIlterDto } from './dto/get-forms-filter.dto';
 import { UpdateFormStatusDto } from './dto/update-form-status.dto';
@@ -25,7 +25,7 @@ import { FormsService } from './forms.service';
 import { FormValidationParameter } from './pipes/form-validation-parameter.pipe';
 import { Logger } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { editFileName, imageFileFilter } from 'src/utils/file-upload.utils';
+import { editFileName, imageFileFilter } from '../utils/file-upload.utils';
 import { diskStorage } from 'multer';
 @Controller('/api/v1/forms')
 export class FormsController {

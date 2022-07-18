@@ -10,10 +10,10 @@ import { GetFormFIlterDto } from './dto/get-forms-filter.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { UpdateFormDto } from './dto/update-form.dto';
-import { UsersService } from 'src/users/users.service';
-import { UserDto } from 'src/users/dto/user.dto';
-import { Profile } from 'src/users/user.model';
-import { GoogleDriveService } from 'src/utils/google-drive.utils';
+import { UsersService } from '../users/users.service';
+import { UserDto } from '../users/dto/user.dto';
+import { Profile } from '../users/user.model';
+import { GoogleDriveService } from '../utils/google-drive.utils';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 
