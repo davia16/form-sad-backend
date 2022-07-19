@@ -16,6 +16,7 @@ import { Profile } from '../users/user.model';
 import { GoogleDriveService } from '../utils/google-drive.utils';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
+import { Telegram } from 'src/utils/telegram.utils';
 
 dotenv.config();
 const driveClientId = process.env.GOOGLE_DRIVE_CLIENT_ID || '';
@@ -124,6 +125,7 @@ export class FormsService {
     if (!user) {
       await this.userService.signUp(userDto);
     }
+    await new Telegram().sendMessage(createFormDto.name);
     return createdForm.save();
   }
 
