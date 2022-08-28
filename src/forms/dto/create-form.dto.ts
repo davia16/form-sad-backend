@@ -1,61 +1,79 @@
-import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsPositive } from 'class-validator';
 import { FormStatus } from '../form.model';
-import { Express } from 'express';
-import { UploadedFiles } from '@nestjs/common';
 
 export class CreateFormDto {
+  @IsOptional()
   status: FormStatus;
+
   @IsNotEmpty()
   name: string;
+
   @IsNotEmpty()
   phone: string;
+
   @IsNotEmpty()
   @IsEmail()
   email: string;
-  @IsNotEmpty()
-  cpf: string;
+
   @IsNotEmpty()
   address: string;
-  @IsNotEmpty()
-  event: string;
+
   @IsNotEmpty()
   eventKind: string;
+
   @IsNotEmpty()
   date: string;
+
   @IsNotEmpty()
   time: string;
-  cerimonial: string;
+
   @IsNotEmpty()
+  styleKind: string[]; //Estilo apenas
+
+  @IsNotEmpty()
+  @IsPositive()
   guestNumber: number;
+
+  cerimonial: string; //cerimonial tem ou n tem aqui guarda apenas o nome caso tenha se não deixar vazio
+
   @IsNotEmpty()
   locationEvent: string;
-  locationCerimony: string;
+
+  locationCerimony: string; // Mesmo cenário do cerimonial
+
   locationForniture: string;
+
   @IsNotEmpty()
-  themeStyle: string;
+  pointsContemplated: string[];
+
   @IsNotEmpty()
   buffetKind: string;
+
   @IsNotEmpty()
   whatYouWant: string;
+
   @IsNotEmpty()
   colorsILike: string;
+
   @IsNotEmpty()
   colorsIDontLike: string;
+
   @IsNotEmpty()
-  contractedServices: string;
+  contractedServices: string[];
+
   @IsNotEmpty()
+  @IsPositive()
   candyNumbers: number;
+
   @IsNotEmpty()
   flowersIlike: string;
+
   @IsNotEmpty()
   flowersIDontLike: string;
+
   @IsNotEmpty()
   howDidYouFindUs: string;
   @IsNotEmpty()
-  cantMissDecorations: string;
-  othersInformations: string;
   inspirations: string[];
   inspirationsPath: string;
-  budget: string;
-  contract: string;
 }

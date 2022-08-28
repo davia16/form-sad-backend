@@ -57,9 +57,10 @@ export class FormsService {
     if (search) {
       return await formsResult.filter((form) => {
         return (
-          form.event === search ||
+          form.eventKind === search ||
           form.date === search ||
-          form.themeStyle === search
+          form.cerimonial === search ||
+          form.styleKind === search
         );
       });
     }
@@ -116,15 +117,6 @@ export class FormsService {
   async createForm(createFormDto: CreateFormDto): Promise<Form> {
     createFormDto.status = FormStatus.OPEN;
     const createdForm = new this.formModel(createFormDto);
-    const userDto: UserDto = {
-      email: createFormDto.email,
-      password: createFormDto.cpf,
-      profile: Profile.USER,
-    };
-    const user = await this.userService.getUserByEmail(userDto.email);
-    if (!user) {
-      await this.userService.signUp(userDto);
-    }
     await new Telegram().sendMessage(createFormDto.name);
     return createdForm.save();
   }
